@@ -35,6 +35,6 @@ so just instanciate a KissMetricsClient - set the user's identity, set your api 
 
 # unit tests
 
-they're actually an integration test...
+they're actually integration tests...
 
 run the tests with -DKISS_API=[your_api_key]
