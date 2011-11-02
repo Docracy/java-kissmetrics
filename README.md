@@ -9,10 +9,32 @@ get a client via DefaultHttpClient
 
 so just instanciate a KissMetricsClient - set the user's identity, set your api key then start making calls.
 
+## example w/o connection manager
+    KissMetricsClient client = new KissMetricsClient(apiKey, userIdentity);
+    client.record("loggedin");
+    client.record("purchased", new KissMetricsProperties().put("item", "latte"));
+    client.alias("some alias for the dude");
 
-# tests
+## example w/ connection manager
+    SchemeRegistry schemeRegistry = new SchemeRegistry();
+    schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
 
-its actually an integration test...
+    ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(schemeRegistry);
+    cm.setMaxTotal(200);
+    cm.setDefaultMaxPerRoute(20);
 
-run the tests with
--DKISS_API=[your_api_key]
+    HttpHost kissMetricsHost = new HttpHost(KissMetricsClient.API_HOST, 80);
+    cm.setMaxForRoute(new HttpRoute(kissMetricsHost), 50);
+
+    KissMetricsClient client = new KissMetricsClient(apiKey, userIdentity);
+    client.setConnectionManager(cm);
+
+    client.record("loggedin");
+    client.record("purchased", new KissMetricsProperties().put("item", "latte"));
+    client.alias("some alias for the dude");
+
+# unit tests
+
+they're actually an integration test...
+
+run the tests with -DKISS_API=[your_api_key]
