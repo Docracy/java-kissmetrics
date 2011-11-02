@@ -25,7 +25,7 @@ public class KissMetricsClientTest {
         HttpHost kissMetricsHost = new HttpHost(KissMetricsClient.API_HOST, 80);
         cm.setMaxForRoute(new HttpRoute(kissMetricsHost), 50);
 
-        client = new KissMetricsClient("1dcdc0b311b41e32f117b482daad40b0f7d67a93",
+        client = new KissMetricsClient(System.getProperty("KISS_API"),
                 "arinTesting",
                 cm,
                 false);
