@@ -10,12 +10,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
 
 public class KissMetricsClient {
     private String apiKey;
     private String id;
     private ClientConnectionManager connectionManager;
     private boolean secure;
+    private boolean useClientTimestamp;
 
     public static final String API_HOST = "trk.kissmetrics.com";
 
@@ -24,7 +27,10 @@ public class KissMetricsClient {
     public static final String PROP_ALIAS_TO = "_n";
     public static final String PROP_IDENTITY = "_p";
     public static final String PROP_TIMESTAMP = "_t";
-    public static final String PROP_USER_TIME = "_d";
+    public static final String PROP_USE_CLIENT_TIME = "_d";
+
+    private static final String SCHEME_HTTS = "https";
+    private static final String SCHEME_HTTP = "http";
 
     public KissMetricsClient() {
     }
@@ -78,8 +84,13 @@ public class KissMetricsClient {
         properties.put(PROP_API_KEY, apiKey).put(PROP_IDENTITY, id)
                   .put(PROP_TIMESTAMP, (System.currentTimeMillis() / 1000L));
 
+        if (useClientTimestamp) {
+            properties.put(PROP_USE_CLIENT_TIME, 1);
+        }
+
         HttpClient httpClient = getHttpClient();
-        HttpGet httpget = new HttpGet(constructUrl(endpoint, properties));
+        final URL url = constructUrl(endpoint, properties);
+        HttpGet httpget = new HttpGet(url.toString());
 
         try {
             HttpResponse response = httpClient.execute(httpget);
@@ -108,16 +119,32 @@ public class KissMetricsClient {
                 : new DefaultHttpClient();
     }
 
-    public String constructUrl(ApiEndpoint endpoint, KissMetricsProperties properties) {
-        StringBuilder sb = new StringBuilder();
-        if (secure) {
-            sb.append("https://");
-        } else {
-            sb.append("http://");
-        }
+    public URL constructUrl(ApiEndpoint endpoint, KissMetricsProperties properties)
+            throws KissMetricsException {
+        String scheme = secure
+                ? SCHEME_HTTS
+                : SCHEME_HTTP;
 
-        return sb.append(API_HOST).append("/").append(endpoint.path()).append("?")
-                 .append(properties.getQueryString()).toString();
+        try {
+            URI uri = new URI(scheme,
+                    null,
+                    API_HOST,
+                    getPort(),
+                    endpoint.path(),
+                    properties.getQueryString(),
+                    null);
+
+            URL url = uri.toURL();
+            return url;
+        } catch (Exception e) {
+            throw new KissMetricsException("couldn't create uri", e);
+        }
+    }
+
+    private int getPort() {
+        return secure
+                ? 443
+                : 80;
     }
 
     public boolean isReady() {
@@ -158,5 +185,13 @@ public class KissMetricsClient {
 
     public void setSecure(boolean secure) {
         this.secure = secure;
+    }
+
+    public boolean isUseClientTimestamp() {
+        return useClientTimestamp;
+    }
+
+    public void setUseClientTimestamp(boolean useClientTimestamp) {
+        this.useClientTimestamp = useClientTimestamp;
     }
 }

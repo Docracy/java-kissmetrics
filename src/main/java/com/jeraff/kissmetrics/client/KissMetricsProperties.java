@@ -1,22 +1,12 @@
 package com.jeraff.kissmetrics.client;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.HashMap;
-
 public class KissMetricsProperties {
     private static final String ENCODING = "UTF-8";
 
     private StringBuilder sb = new StringBuilder();
 
     private void _put(String key, Object value) {
-        try {
-            sb.append(URLEncoder.encode(key, ENCODING)).append("=")
-              .append(URLEncoder.encode(value.toString(), ENCODING)).append("&");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            // todo - deal with this - but it shouldn't ever happen
-        }
+        sb.append(key).append("=").append(value.toString()).append("&");
     }
 
     public KissMetricsProperties put(String key, String value) {
