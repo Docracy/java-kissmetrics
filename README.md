@@ -11,6 +11,7 @@ so just instanciate a KissMetricsClient - set the user's identity, set your api 
 
 ## example w/o connection manager
     KissMetricsClient client = new KissMetricsClient(apiKey, userIdentity);
+    client.setHttpClient(new DefaultHttpClient());
     client.record("loggedin");
     client.record("purchased", new KissMetricsProperties().put("item", "latte"));
     client.alias("some alias for the dude");
@@ -27,7 +28,7 @@ so just instanciate a KissMetricsClient - set the user's identity, set your api 
     cm.setMaxForRoute(new HttpRoute(kissMetricsHost), 50);
 
     KissMetricsClient client = new KissMetricsClient(apiKey, userIdentity);
-    client.setConnectionManager(cm);
+    client.setHttpClient(new DefaultHttpClient(cm));
 
     client.record("loggedin");
     client.record("purchased", new KissMetricsProperties().put("item", "latte"));

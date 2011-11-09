@@ -5,8 +5,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
@@ -16,7 +14,7 @@ import java.net.URL;
 public class KissMetricsClient {
     private String apiKey;
     private String id;
-    private ClientConnectionManager connectionManager;
+    private HttpClient httpClient;
     private boolean secure;
     private boolean useClientTimestamp;
 
@@ -41,11 +39,17 @@ public class KissMetricsClient {
     }
 
     public KissMetricsClient(
-            String apiKey, String id, ClientConnectionManager connectionManager, boolean secure) {
+            String apiKey, String id, HttpClient httpClient, boolean secure) {
         this.apiKey = apiKey;
         this.id = id;
-        this.connectionManager = connectionManager;
+        this.httpClient = httpClient;
         this.secure = secure;
+    }
+
+    public KissMetricsClient(String apiKey, String id, HttpClient httpClient) {
+        this.apiKey = apiKey;
+        this.id = id;
+        this.httpClient = httpClient;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -88,7 +92,6 @@ public class KissMetricsClient {
             properties.put(PROP_USE_CLIENT_TIME, 1);
         }
 
-        HttpClient httpClient = getHttpClient();
         final URL url = constructUrl(endpoint, properties);
         HttpGet httpget = new HttpGet(url.toString());
 
@@ -111,12 +114,6 @@ public class KissMetricsClient {
             httpget.abort();
             throw new KissMetricsException(e);
         }
-    }
-
-    private DefaultHttpClient getHttpClient() {
-        return connectionManager != null
-                ? new DefaultHttpClient(connectionManager)
-                : new DefaultHttpClient();
     }
 
     public URL constructUrl(ApiEndpoint endpoint, KissMetricsProperties properties)
@@ -148,7 +145,7 @@ public class KissMetricsClient {
     }
 
     public boolean isReady() {
-        return id != null && apiKey != null;
+        return id != null && apiKey != null && httpClient != null;
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -171,14 +168,6 @@ public class KissMetricsClient {
         this.id = id;
     }
 
-    public ClientConnectionManager getConnectionManager() {
-        return connectionManager;
-    }
-
-    public void setConnectionManager(ClientConnectionManager connectionManager) {
-        this.connectionManager = connectionManager;
-    }
-
     public boolean isSecure() {
         return secure;
     }
@@ -193,5 +182,13 @@ public class KissMetricsClient {
 
     public void setUseClientTimestamp(boolean useClientTimestamp) {
         this.useClientTimestamp = useClientTimestamp;
+    }
+
+    public HttpClient getHttpClient() {
+        return httpClient;
+    }
+
+    public void setHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
     }
 }

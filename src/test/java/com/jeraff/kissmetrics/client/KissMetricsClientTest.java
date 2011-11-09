@@ -6,6 +6,7 @@ import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,10 +26,8 @@ public class KissMetricsClientTest {
         HttpHost kissMetricsHost = new HttpHost(KissMetricsClient.API_HOST, 80);
         cm.setMaxForRoute(new HttpRoute(kissMetricsHost), 50);
 
-        client = new KissMetricsClient(System.getProperty("KISS_API"),
-                "arinTesting",
-                cm,
-                false);
+        final DefaultHttpClient httpClient = new DefaultHttpClient(cm);
+        client = new KissMetricsClient(System.getProperty("KISS_API"), "arinTesting", httpClient, false);
     }
 
     @Test
