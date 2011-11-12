@@ -35,6 +35,6 @@ public class KissMetricsResponse {
     }
 
     public boolean isOK() {
-        return status >= 200 || status <= 299;
+        return status >= 200 && status <= 299;
     }
 }

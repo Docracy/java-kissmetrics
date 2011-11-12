@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>jeraff-kiss-metrics</groupId>
-    <artifactId>jeraff-kiss-metrics</artifactId>
+    <groupId>com.jeraff.kissmetrics</groupId>
+    <artifactId>jeraff-kissmetrics</artifactId>
     <version>1.0</version>
 
     <dependencies>
