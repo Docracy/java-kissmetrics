@@ -58,7 +58,7 @@ public class KissMetricsClient {
 
     public KissMetricsResponse record(String eventName, KissMetricsProperties properties)
             throws KissMetricsException {
-        properties.put(PROP_EVENT_NAME, eventName);
+        properties.putSafe(PROP_EVENT_NAME, eventName);
         return call(ApiEndpoint.RECORD_EVENT, properties);
     }
 
@@ -74,6 +74,8 @@ public class KissMetricsClient {
         final KissMetricsProperties props = new KissMetricsProperties().put(PROP_ALIAS_TO, aliasTo);
         return call(ApiEndpoint.ALIAS_USER, props);
     }
+
+
 
     //////////////////////////////////////////////////////////////////////
     // helpers

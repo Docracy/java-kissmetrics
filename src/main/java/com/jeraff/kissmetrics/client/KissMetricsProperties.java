@@ -34,6 +34,18 @@ public class KissMetricsProperties {
         return this;
     }
 
+    public KissMetricsProperties putSafe(String key, String value) {
+        final int starts = sb.indexOf(key + "=");
+
+        if (starts != -1) {
+            final int ends = sb.indexOf("&", starts) + 1; // + 1 to remove the & sign too
+            sb.delete(starts, ends);
+        }
+
+        _put(key, value);
+        return this;
+    }
+
     public void clear() {
         sb = new StringBuilder();
     }
