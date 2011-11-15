@@ -87,7 +87,7 @@ public class KissMetricsClient {
             throw new KissMetricsException();
         }
 
-        properties.put(PROP_API_KEY, apiKey).put(PROP_IDENTITY, id)
+        properties.putSafe(PROP_API_KEY, apiKey).putSafe(PROP_IDENTITY, id)
                   .put(PROP_TIMESTAMP, (System.currentTimeMillis() / 1000L));
 
         if (useClientTimestamp) {
