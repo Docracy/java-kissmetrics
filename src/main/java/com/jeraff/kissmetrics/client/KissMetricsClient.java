@@ -95,7 +95,6 @@ public class KissMetricsClient {
         }
 
         final FluentCaseInsensitiveStringsMap headers = response.getHeaders();
-        final Collection<List<String>> values = headers.values();
         for (Map.Entry<String, List<String>> header : headers) {
             kissMetricsResponse.addHeader(header.getKey(), header.getValue().get(0));
         }
