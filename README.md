@@ -50,9 +50,9 @@ we dont bother storing the body b/c every time i've checked out the body its a G
 
 the properties you send to kiss metrics are abstracted by the `KissMetricsProperties` class.
 the main reason we use this instead of a HashMap is
-    - it has a fluent interface so you can do convenient stuff like
+    * it has a fluent interface so you can do convenient stuff like
         props.put("key1", "value1").put("key2", "value2")
-    - it restricts you to int, long, String, double, float and boolean (aka u cant pass absurd & giant objects to it)
+    * it restricts you to int, long, String, double, float and boolean (aka u cant pass absurd & giant objects to it)
 
 
 # unit tests
