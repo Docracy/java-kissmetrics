@@ -49,7 +49,8 @@ we dont bother storing the body b/c every time i've checked out the body its a G
 # unit tests
 
 they're actually functional tests... nothing's mocked.
-run the tests with -DKISS_API=[your_api_key]
-you can use the Makefile too
+you can use the Makefile to run the tests via:
 
     make KISS_API=<YOUR_API_KEY> test
+
+so launch the test and look at your kiss metrics live console. if u wanna mock everything up have at it and send us a pull request
