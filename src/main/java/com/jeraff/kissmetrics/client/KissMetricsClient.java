@@ -103,8 +103,6 @@ public class KissMetricsClient {
         return kissMetricsResponse;
     }
 
-
-
     //////////////////////////////////////////////////////////////////////
     // helpers
     //////////////////////////////////////////////////////////////////////
@@ -122,9 +120,12 @@ public class KissMetricsClient {
                       .put(PROP_USE_CLIENT_TIME, 1);
         }
 
-        String url = null;
+        final String url = constructUrl(endpoint, properties);
+        if (httpClient == null) {
+            httpClient = new AsyncHttpClient();
+        }
+
         try {
-            url = constructUrl(endpoint, properties);
             lastResponse = httpClient.prepareGet(url).execute();
         } catch (Exception e) {
             throw new KissMetricsException("error: " + url, e);
@@ -147,7 +148,7 @@ public class KissMetricsClient {
     }
 
     public boolean isReady() {
-        return id != null && apiKey != null && httpClient != null;
+        return id != null && apiKey != null;
     }
 
     //////////////////////////////////////////////////////////////////////
