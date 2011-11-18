@@ -50,3 +50,6 @@ we dont bother storing the body b/c every time i've checked out the body its a G
 
 they're actually functional tests... nothing's mocked.
 run the tests with -DKISS_API=[your_api_key]
+you can use the Makefile too
+
+    make KISS_API=<YOUR_API_KEY> test
