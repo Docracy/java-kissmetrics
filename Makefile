@@ -1,0 +1,2 @@
+jar:
+	mvn package -DskipTests
