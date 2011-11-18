@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface Record {
     String id();
     String event();
-    String props();
+    String props() default "";
 }

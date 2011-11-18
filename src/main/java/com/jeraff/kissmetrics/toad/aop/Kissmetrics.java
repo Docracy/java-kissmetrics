@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Kissmetrics {
-    Record[] value();
+    Record value();
     Record[] record();
     Set[] set();
     Alias[] alias();
+    boolean runBefore() default false;
 }

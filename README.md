@@ -4,7 +4,7 @@ this is the start of a basic java client for kiss metrics...
 its backed by AsyncHttpClient from https://github.com/sonatype/async-http-client
 
 
-All you have to do is instanciate a KissMetricsClient - set the user's identity, set your api key then start making calls.
+All you have to do is instantiate a KissMetricsClient - set the user's identity, set your api key then start making calls.
 
 ## simple use
     // since a AsyncHttpClient isn't passed in to KissMetricsClient it'll just make one
@@ -15,7 +15,7 @@ All you have to do is instanciate a KissMetricsClient - set the user's identity,
 
 ## provide your own AsyncHttpClient
 
-if you want to use connection pooling a proxy etc then you can pass in your own AsyncHttpClient.
+if you want to use connection pooling, a proxy etc... then you can pass in your own AsyncHttpClient.
 more info can be found at https://github.com/sonatype/async-http-client (links at the top of their README).
 but the basic idea would be something like this:
 
@@ -43,7 +43,7 @@ if you want the result of the HTTP call to KISS metrics you have to call `getRes
     KissMetricsResponse resp = client.record("loggedin").getResponse();
 
 our KissMetricsResponse class will get you the http status code and all the headers.
-we dont bother storing the body b/c every time i've checked out the body its a GIF.
+we don't bother storing the body b/c every time i've checked out the body it's a GIF.
 
 
 ## KissMetricsProperties

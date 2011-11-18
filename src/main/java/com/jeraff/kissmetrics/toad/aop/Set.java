@@ -10,4 +10,6 @@ import java.lang.annotation.Target;
 public @interface Set {
     String id();
     String props();
+    String key();
+    String val();
 }
