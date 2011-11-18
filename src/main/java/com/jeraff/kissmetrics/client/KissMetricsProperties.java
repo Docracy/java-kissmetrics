@@ -25,6 +25,11 @@ public class KissMetricsProperties {
         return this;
     }
 
+    public KissMetricsProperties put(String key, double value) {
+        _put(key, value);
+        return this;
+    }
+
     public KissMetricsProperties put(String key, long value) {
         _put(key, value);
         return this;
