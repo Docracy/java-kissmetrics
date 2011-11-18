@@ -99,4 +99,15 @@ public class JeraffELResolverTest {
         Assert.assertEquals(username, r.getValue("${x.attrs.username}"));
         Assert.assertEquals(username, r.getValue("${x.tags[0]}"));
     }
+
+    @Test
+    public void listOfBeans() throws Exception {
+        final String username = "phatduckk";
+        final ArrayList list = new ArrayList(){{
+            add(new User(username));
+        }};
+
+        JeraffELResolver r = new JeraffELResolver(getExpressionFactory(), getBean(list));
+        Assert.assertEquals(username, r.getValue("${x[0].username}"));
+    }
 }
