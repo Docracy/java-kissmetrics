@@ -1,12 +1,13 @@
 package com.jeraff.kissmetrics.client;
 
-public class KissMetricsProperties {
-    private static final String ENCODING = "UTF-8";
+import com.jeraff.kissmetrics.client.util.URLUTF8Encoder;
 
+public class KissMetricsProperties {
     private StringBuilder sb = new StringBuilder();
 
     private void _put(String key, Object value) {
-        sb.append(key).append("=").append(value.toString()).append("&");
+        sb.append(URLUTF8Encoder.encode(key)).append("=").append(URLUTF8Encoder.encode(value.toString()))
+          .append("&");
     }
 
     public KissMetricsProperties put(String key, String value) {

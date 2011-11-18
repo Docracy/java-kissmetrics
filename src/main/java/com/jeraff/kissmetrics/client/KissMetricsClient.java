@@ -1,22 +1,21 @@
 package com.jeraff.kissmetrics.client;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.util.EntityUtils;
+import com.ning.http.client.AsyncHttpClient;
+import com.ning.http.client.FluentCaseInsensitiveStringsMap;
+import com.ning.http.client.Response;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 public class KissMetricsClient {
     private String apiKey;
     private String id;
-    private HttpClient httpClient;
+    private AsyncHttpClient httpClient;
     private boolean secure;
     private boolean useClientTimestamp;
+    private Future<Response> lastResponse;
 
     public static final String API_HOST = "trk.kissmetrics.com";
 
@@ -30,6 +29,8 @@ public class KissMetricsClient {
     private static final String SCHEME_HTTS = "https";
     private static final String SCHEME_HTTP = "http";
 
+    public static final String URL_FORMAT = "%s://%s%s?%s";
+
     public KissMetricsClient() {
     }
 
@@ -39,14 +40,14 @@ public class KissMetricsClient {
     }
 
     public KissMetricsClient(
-            String apiKey, String id, HttpClient httpClient, boolean secure) {
+            String apiKey, String id, AsyncHttpClient httpClient, boolean secure) {
         this.apiKey = apiKey;
         this.id = id;
         this.httpClient = httpClient;
         this.secure = secure;
     }
 
-    public KissMetricsClient(String apiKey, String id, HttpClient httpClient) {
+    public KissMetricsClient(String apiKey, String id, AsyncHttpClient httpClient) {
         this.apiKey = apiKey;
         this.id = id;
         this.httpClient = httpClient;
@@ -56,23 +57,50 @@ public class KissMetricsClient {
     // API endpoints
     //////////////////////////////////////////////////////////////////////
 
-    public KissMetricsResponse record(String eventName, KissMetricsProperties properties)
+    public KissMetricsClient record(String eventName, KissMetricsProperties properties)
             throws KissMetricsException {
         properties.putSafe(PROP_EVENT_NAME, eventName);
-        return call(ApiEndpoint.RECORD_EVENT, properties);
+        call(ApiEndpoint.RECORD_EVENT, properties);
+        return this;
     }
 
-    public KissMetricsResponse record(String eventName) throws KissMetricsException {
-        return record(eventName, new KissMetricsProperties());
+    public KissMetricsClient record(String eventName) throws KissMetricsException {
+        record(eventName, new KissMetricsProperties());
+        return this;
     }
 
-    public KissMetricsResponse set(KissMetricsProperties properties) throws KissMetricsException {
-        return call(ApiEndpoint.SET_PROPERTIES, properties);
+    public KissMetricsClient set(KissMetricsProperties properties) throws KissMetricsException {
+        call(ApiEndpoint.SET_PROPERTIES, properties);
+        return this;
     }
 
-    public KissMetricsResponse alias(String aliasTo) throws KissMetricsException {
+    public KissMetricsClient alias(String aliasTo) throws KissMetricsException {
         final KissMetricsProperties props = new KissMetricsProperties().put(PROP_ALIAS_TO, aliasTo);
-        return call(ApiEndpoint.ALIAS_USER, props);
+        call(ApiEndpoint.ALIAS_USER, props);
+        return this;
+    }
+
+    //////////////////////////////////////////////////////////////////////
+    // get the response...
+    //////////////////////////////////////////////////////////////////////
+    public KissMetricsResponse getResponse() throws KissMetricsException {
+        final KissMetricsResponse kissMetricsResponse = new KissMetricsResponse();
+        final Response response;
+
+        try {
+            response = lastResponse.get();
+            kissMetricsResponse.setStatus(response.getStatusCode());
+        } catch (Exception e) {
+            throw new KissMetricsException("couldn't get response", e);
+        }
+
+        final FluentCaseInsensitiveStringsMap headers = response.getHeaders();
+        final Collection<List<String>> values = headers.values();
+        for (Map.Entry<String, List<String>> header : headers) {
+            kissMetricsResponse.addHeader(header.getKey(), header.getValue().get(0));
+        }
+
+        return kissMetricsResponse;
     }
 
 
@@ -81,69 +109,41 @@ public class KissMetricsClient {
     // helpers
     //////////////////////////////////////////////////////////////////////
 
-    public KissMetricsResponse call(ApiEndpoint endpoint, KissMetricsProperties properties)
+    public void call(ApiEndpoint endpoint, KissMetricsProperties properties)
             throws KissMetricsException {
         if (!isReady()) {
             throw new KissMetricsException();
         }
 
-        properties.putSafe(PROP_API_KEY, apiKey).putSafe(PROP_IDENTITY, id)
-                  .put(PROP_TIMESTAMP, (System.currentTimeMillis() / 1000L));
+        properties.putSafe(PROP_API_KEY, apiKey).put(PROP_IDENTITY, id);
 
         if (useClientTimestamp) {
-            properties.put(PROP_USE_CLIENT_TIME, 1);
+            properties.put(PROP_TIMESTAMP, (System.currentTimeMillis() / 1000L))
+                      .put(PROP_USE_CLIENT_TIME, 1);
         }
 
-        final URL url = constructUrl(endpoint, properties);
-        HttpGet httpget = new HttpGet(url.toString());
-
+        String url = null;
         try {
-            HttpResponse response = httpClient.execute(httpget);
-            HttpEntity entity = response.getEntity();
-            EntityUtils.consume(entity);
-
-            KissMetricsResponse kissMetricsResponse = new KissMetricsResponse();
-            kissMetricsResponse.setStatus(response.getStatusLine().getStatusCode());
-
-            final Header[] allHeaders = response.getAllHeaders();
-            for (int i = 0; i < allHeaders.length; i++) {
-                Header header = allHeaders[i];
-                kissMetricsResponse.addHeader(header.getName(), header.getValue());
-            }
-
-            return kissMetricsResponse;
-        } catch (IOException e) {
-            httpget.abort();
-            throw new KissMetricsException(e);
+            url = constructUrl(endpoint, properties);
+            lastResponse = httpClient.prepareGet(url).execute();
+        } catch (Exception e) {
+            throw new KissMetricsException("error: " + url, e);
         }
     }
 
-    public URL constructUrl(ApiEndpoint endpoint, KissMetricsProperties properties)
+    public String constructUrl(ApiEndpoint endpoint, KissMetricsProperties properties)
             throws KissMetricsException {
-        String scheme = secure
+        final String scheme = secure
                 ? SCHEME_HTTS
                 : SCHEME_HTTP;
 
         try {
-            URI uri = new URI(scheme,
-                    null,
-                    API_HOST,
-                    getPort(),
-                    endpoint.path(),
-                    properties.getQueryString(),
-                    null);
-
-            URL url = uri.toURL();
-            return url;
+            final String s = String
+                    .format(URL_FORMAT, scheme, API_HOST, endpoint.path(), properties.getQueryString());
+            return s;
         } catch (Exception e) {
             throw new KissMetricsException("couldn't create uri", e);
         }
-    }
-
-    private int getPort() {
-        return secure
-                ? 443
-                : 80;
     }
 
     public boolean isReady() {
@@ -186,11 +186,11 @@ public class KissMetricsClient {
         this.useClientTimestamp = useClientTimestamp;
     }
 
-    public HttpClient getHttpClient() {
+    public AsyncHttpClient getHttpClient() {
         return httpClient;
     }
 
-    public void setHttpClient(HttpClient httpClient) {
+    public void setHttpClient(AsyncHttpClient httpClient) {
         this.httpClient = httpClient;
     }
 }

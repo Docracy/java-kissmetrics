@@ -1,13 +1,7 @@
 package com.jeraff.kissmetrics.client;
 
+import com.ning.http.client.AsyncHttpClient;
 import junit.framework.Assert;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -16,52 +10,53 @@ public class KissMetricsClientTest {
 
     @BeforeClass
     public static void setupClient() {
-        SchemeRegistry schemeRegistry = new SchemeRegistry();
-        schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
-
-        ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager(schemeRegistry);
-        cm.setMaxTotal(200);
-        cm.setDefaultMaxPerRoute(20);
-
-        HttpHost kissMetricsHost = new HttpHost(KissMetricsClient.API_HOST, 80);
-        cm.setMaxForRoute(new HttpRoute(kissMetricsHost), 50);
-
-        final DefaultHttpClient httpClient = new DefaultHttpClient(cm);
+        AsyncHttpClient httpClient = new AsyncHttpClient();
         client = new KissMetricsClient(System.getProperty("KISS_API"), "arinTesting", httpClient, false);
     }
 
     @Test
     public void testRecord() throws KissMetricsException {
-        KissMetricsResponse resp = client.record("loggedin");
+        KissMetricsResponse resp = client.record("loggedin").getResponse();
         Assert.assertEquals(200, resp.getStatus());
 
-        resp = client.record("purchased", new KissMetricsProperties().put("sku", "abcedfg"));
+        resp = client.record("purchased", new KissMetricsProperties().put("sku", "abcedfg"))
+                     .getResponse();
         Assert.assertEquals(200, resp.getStatus());
     }
 
     @Test
     public void testAlias() throws KissMetricsException {
-        KissMetricsResponse resp = client.alias("arin@jeraff.com");
+        KissMetricsResponse resp = client.alias("arin@jeraff.com").getResponse();
         Assert.assertEquals(200, resp.getStatus());
     }
 
     @Test
     public void testSet() throws KissMetricsException {
-        KissMetricsResponse resp = client.set(new KissMetricsProperties().put("age", 33));
+        KissMetricsResponse resp = client.set(new KissMetricsProperties().put("age", 33)).getResponse();
         Assert.assertEquals(200, resp.getStatus());
     }
 
     @Test
     public void testURLEncoding() throws KissMetricsException {
         KissMetricsResponse resp = client
-                .set(new KissMetricsProperties().put("encodeDeez", "This is cool"));
+                .set(new KissMetricsProperties().put("encodeDeez", "This is cool")).getResponse();
         Assert.assertEquals(200, resp.getStatus());
 
-        resp = client.set(new KissMetricsProperties().put("2 things", "This & that"));
+        resp = client.set(new KissMetricsProperties().put("2 things", "This & that")).getResponse();
         Assert.assertEquals(200, resp.getStatus());
 
-        resp = client
-                .set(new KissMetricsProperties().put("some symbols?", "? question & and % percent"));
+        resp = client.set(new KissMetricsProperties().put("some symbols?", "? question & and % percent"))
+                     .getResponse();
+
+        Assert.assertEquals(200, resp.getStatus());
+    }
+
+    @Test
+    public void testInternationalCharacters() throws KissMetricsException {
+        String chineseString = "??/??";
+
+        KissMetricsResponse resp = client
+                .set(new KissMetricsProperties().put("intlChars", chineseString)).getResponse();
         Assert.assertEquals(200, resp.getStatus());
     }
 }
