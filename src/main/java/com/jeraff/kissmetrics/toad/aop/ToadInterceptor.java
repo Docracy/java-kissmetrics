@@ -20,14 +20,14 @@ public class ToadInterceptor implements MethodInterceptor {
 
             final Kissmetrics kissAnnotation = invocation.getMethod().getAnnotation(Kissmetrics.class);
 
-            elHelper.populateToad(kissAnnotation);
-
             if (kissAnnotation.runBefore()) {
+                elHelper.populateToad(kissAnnotation);
                 toad.run();
                 return invocation.proceed();
             }
 
             final Object result = invocation.proceed();
+            elHelper.populateToad(kissAnnotation);
             toad.run();
             return result;
         } catch(Exception e) {
