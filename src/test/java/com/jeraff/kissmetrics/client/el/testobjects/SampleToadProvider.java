@@ -41,6 +41,11 @@ public class SampleToadProvider implements ToadProvider {
         return toad;
     }
 
+    @Override
+    public String getDefaultKissClientId() {
+        return "ryan";
+    }
+
     @Kissmetrics(alias =  @Alias(id = "ryan", to = "ryan@toodo.com"))
     public void simpleAlias() {}
 

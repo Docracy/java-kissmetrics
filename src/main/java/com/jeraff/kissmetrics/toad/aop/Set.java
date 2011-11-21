@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Set {
-    String id();
+    String id() default "";
     String props() default "";
     String key() default "";
     String value() default "";

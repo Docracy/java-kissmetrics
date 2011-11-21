@@ -27,17 +27,17 @@ public class ToadELHelper {
 
         // alias annotations
         for (Alias alias : annotation.alias()) {
-            toad.user((String) resolve(alias.id()))
+            toad.user(getClientId(alias.id()))
                     .alias((String)resolve(alias.to()));
         }
 
         // set annotations
         for (Set set : annotation.set()) {
             if (!set.props().isEmpty()) {
-                toad.user((String) resolve(set.id()))
+                toad.user(getClientId(set.id()))
                         .set((KissMetricsProperties) resolve(set.props()));
             } else {
-                toad.user((String) resolve(set.id()))
+                toad.user(getClientId(set.id()))
                         .set((String)resolve(set.key()), (String)resolve(set.value()));
             }
         }
@@ -47,7 +47,7 @@ public class ToadELHelper {
             KissMetricsProperties props = (!record.props().isEmpty()) ?
                     (KissMetricsProperties) resolve(record.props()) :
                     new KissMetricsProperties();
-            toad.user((String) resolve(record.id()))
+            toad.user(getClientId(record.id()))
                     .record((String)resolve(record.event()), props);
         }
     }
@@ -80,6 +80,14 @@ public class ToadELHelper {
         }
 
         return expression;
+    }
+
+    private String getClientId(String id) {
+        if (id.isEmpty()) {
+            return toadProvider.getDefaultKissClientId();
+        }
+
+        return (String)resolve(id);
     }
 
     private KissMetricsProperties convertMapToProps (Map mapToConvert) {

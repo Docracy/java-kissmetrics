@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 public @interface Record {
-    String id();
+    String id() default "";
     String event();
     String props() default "";
 }
