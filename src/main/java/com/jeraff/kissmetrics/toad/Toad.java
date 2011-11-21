@@ -14,10 +14,6 @@ public class Toad {
         this.client = client;
     }
 
-    private void setupELContext() {
-
-    }
-
     public ToadUser user(String id) {
         if (users.containsKey(id)) {
             return users.get(id);
@@ -30,10 +26,6 @@ public class Toad {
 
     public void abort() {
         shouldAbort = true;
-    }
-
-    public Object resolve(String expression) {
-        return null;
     }
 
     public void run() {
@@ -77,5 +69,9 @@ public class Toad {
 
     public void setUsers(HashMap<String, ToadUser> users) {
         this.users = users;
+    }
+
+    public void clearUsers() {
+        users.clear();
     }
 }

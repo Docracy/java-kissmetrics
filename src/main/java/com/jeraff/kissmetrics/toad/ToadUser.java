@@ -112,6 +112,12 @@ public class ToadUser {
         return this;
     }
 
+    public void clear() {
+        lastEventProps = null;
+        aliases.clear();
+        propsMap.clear();
+    }
+
     /* getters */
     public String getId() {
         return id;

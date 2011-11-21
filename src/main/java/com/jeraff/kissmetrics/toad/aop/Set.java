@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface Set {
     String id();
-    String props();
-    String key();
-    String val();
+    String props() default "";
+    String key() default "";
+    String value() default "";
 }
