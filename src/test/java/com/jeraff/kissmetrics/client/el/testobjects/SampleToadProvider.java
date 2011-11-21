@@ -2,6 +2,7 @@ package com.jeraff.kissmetrics.client.el.testobjects;
 
 import com.jeraff.kissmetrics.client.KissMetricsClient;
 import com.jeraff.kissmetrics.client.KissMetricsProperties;
+import com.jeraff.kissmetrics.client.el.JeraffELResolver;
 import com.jeraff.kissmetrics.toad.Toad;
 import com.jeraff.kissmetrics.toad.ToadProvider;
 import com.jeraff.kissmetrics.toad.aop.Alias;
@@ -10,6 +11,7 @@ import com.jeraff.kissmetrics.toad.aop.Record;
 import com.jeraff.kissmetrics.toad.aop.Set;
 import com.ning.http.client.AsyncHttpClient;
 
+import javax.el.ExpressionFactory;
 import java.util.HashMap;
 
 public class SampleToadProvider implements ToadProvider {
@@ -27,6 +29,13 @@ public class SampleToadProvider implements ToadProvider {
             AsyncHttpClient httpClient = new AsyncHttpClient();
             KissMetricsClient client = new KissMetricsClient(System.getProperty("KISS_API"), "arinTesting", httpClient, false);
             toad = new Toad(client);
+
+            ClassLoader cl = JeraffELResolver.class.getClassLoader();
+            try {
+                Class<?> expressionFactoryClass = cl.loadClass("de.odysseus.el.ExpressionFactoryImpl");
+                toad.setExpressionFactory((ExpressionFactory) expressionFactoryClass.newInstance());
+            } catch (Exception e) {
+            }
         }
 
         return toad;

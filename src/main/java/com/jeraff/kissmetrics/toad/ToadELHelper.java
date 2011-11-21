@@ -52,16 +52,6 @@ public class ToadELHelper {
         }
     }
 
-    private ExpressionFactory getExpressionFactory() throws Exception {
-        ClassLoader cl = JeraffELResolver.class.getClassLoader();
-        try {
-            Class<?> expressionFactoryClass = cl.loadClass("de.odysseus.el.ExpressionFactoryImpl");
-            return (ExpressionFactory) expressionFactoryClass.newInstance();
-        } catch (Exception e) {
-            throw e;
-        }
-    }
-
     public Object resolve(String expression) {
         /* IMPORTANT: el support is scoped to "provided" in the library pom.xml so it's up to to you to modify your
          * pom.xml (if you're using maven) for runtime support or to make sure that the expression factory library is in
@@ -69,7 +59,9 @@ public class ToadELHelper {
         if (expression.startsWith(EL_PREFIX)) {
             if (elResolver == null) {
                 try {
-                    elResolver = new JeraffELResolver(getExpressionFactory(), toadProvider);
+                    if (toadProvider.getToad().getExpressionFactory() != null) {
+                        elResolver = new JeraffELResolver(toadProvider.getToad().getExpressionFactory(), toadProvider);
+                    }
                 } catch (Exception e) {
                 }
             }

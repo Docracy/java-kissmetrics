@@ -2,13 +2,16 @@ package com.jeraff.kissmetrics.toad;
 
 import com.jeraff.kissmetrics.client.KissMetricsClient;
 import com.jeraff.kissmetrics.client.KissMetricsException;
+import com.jeraff.kissmetrics.client.el.JeraffELResolver;
 
+import javax.el.ExpressionFactory;
 import java.util.HashMap;
 
 public class Toad {
     private KissMetricsClient client;
     private HashMap<String, ToadUser> users = new HashMap<String, ToadUser>();
     private boolean shouldAbort = false;
+    private ExpressionFactory expressionFactory;
 
     public Toad(KissMetricsClient client) {
         this.client = client;
@@ -73,5 +76,13 @@ public class Toad {
 
     public void clearUsers() {
         users.clear();
+    }
+
+    public ExpressionFactory getExpressionFactory() throws Exception {
+        return expressionFactory;
+    }
+
+    public void setExpressionFactory(ExpressionFactory expressionFactory) {
+        this.expressionFactory = expressionFactory;
     }
 }
