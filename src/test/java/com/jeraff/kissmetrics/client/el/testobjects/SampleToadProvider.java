@@ -54,6 +54,19 @@ public class SampleToadProvider implements ToadProvider {
     @Kissmetrics(record = @Record(id = "ryan", event = "purchased"))
     public void simpleRecord() {}
 
+    @Kissmetrics(record = @Record(id = "ryan", event = "purchased", props="${props}"))
+    public void recordWithProps() {}
+
+    @Kissmetrics(record = {@Record(id = "ryan", event = "purchased", props="${props}"),
+                           @Record(id = "arin", event = "returned", props="${props}")})
+    public void multiRecord() {}
+
+    @Kissmetrics(record = {@Record(id = "ryan", event = "purchased", props="${props}"),
+                           @Record(id = "arin", event = "returned", props="${props}")},
+                 set = @Set(id="ryan", props="${props}"),
+                 alias = @Alias(id="ryan", to="ryan@toodo.com"))
+    public void multiAnnotate() {}
+
     public String getTestString() {
         return testString;
     }

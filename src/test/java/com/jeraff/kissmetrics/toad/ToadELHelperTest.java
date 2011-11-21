@@ -138,6 +138,107 @@ public class ToadELHelperTest {
     }
 
     @Test
+    public void testSimpleRecord() throws NoSuchMethodException, KissMetricsException {
+        final Kissmetrics annotation =
+            sampleToadProvider.getClass().getMethod("simpleRecord").getAnnotation(Kissmetrics.class);
+
+        final String userId = annotation.record()[0].id();
+        final String event = annotation.record()[0].event();
+
+        toadELHelper.populateToad(annotation);
+
+        final ToadUser toadUser = sampleToadProvider.getToad().getUsers().get(userId);
+        Assert.assertNotNull(toadUser);
+
+        Assert.assertTrue(toadUser.getPropsMap().containsKey(event));
+    }
+
+    @Test
+    public void testRecordWithProps() throws NoSuchMethodException, KissMetricsException {
+        final Kissmetrics annotation =
+            sampleToadProvider.getClass().getMethod("recordWithProps").getAnnotation(Kissmetrics.class);
+
+        final String userId = annotation.record()[0].id();
+        final String event = annotation.record()[0].event();
+
+        final KissMetricsProperties kissProps = new KissMetricsProperties().put("item", "latte").put("cost", 5);
+        sampleToadProvider.setProps(kissProps);
+
+        toadELHelper.populateToad(annotation);
+
+        final ToadUser toadUser = sampleToadProvider.getToad().getUsers().get(userId);
+        Assert.assertNotNull(toadUser);
+
+        final KissMetricsProperties eventProps = toadUser.getPropsMap().get(event);
+        Assert.assertNotNull(eventProps);
+        Assert.assertEquals(kissProps.getQueryString(), eventProps.getQueryString());
+    }
+
+    @Test
+    public void testMultiRecord() throws NoSuchMethodException, KissMetricsException {
+        final Kissmetrics annotation =
+            sampleToadProvider.getClass().getMethod("multiRecord").getAnnotation(Kissmetrics.class);
+
+        final String userId = annotation.record()[0].id();
+        final String event = annotation.record()[0].event();
+        final String userId2 = annotation.record()[1].id();
+        final String event2 = annotation.record()[1].event();
+
+        final KissMetricsProperties kissProps = new KissMetricsProperties().put("item", "latte");
+        sampleToadProvider.setProps(kissProps);
+
+        toadELHelper.populateToad(annotation);
+
+        final ToadUser toadUser = sampleToadProvider.getToad().getUsers().get(userId);
+        Assert.assertNotNull(toadUser);
+
+        final ToadUser toadUser2 = sampleToadProvider.getToad().getUsers().get(userId2);
+        Assert.assertNotNull(toadUser2);
+
+        final KissMetricsProperties eventProps = toadUser.getPropsMap().get(event);
+        Assert.assertNotNull(eventProps);
+        Assert.assertEquals(kissProps.getQueryString(), eventProps.getQueryString());
+
+        final KissMetricsProperties eventProps2 = toadUser2.getPropsMap().get(event2);
+        Assert.assertNotNull(eventProps2);
+        Assert.assertEquals(kissProps.getQueryString(), eventProps2.getQueryString());
+    }
+
+    @Test
+    public void testMultiAnnotate() throws NoSuchMethodException, KissMetricsException {
+        final Kissmetrics annotation =
+            sampleToadProvider.getClass().getMethod("multiAnnotate").getAnnotation(Kissmetrics.class);
+
+        final String userId = annotation.record()[0].id();
+        final String event = annotation.record()[0].event();
+        final String to = annotation.alias()[0].to();
+        final String userId2 = annotation.record()[1].id();
+        final String event2 = annotation.record()[1].event();
+
+        final KissMetricsProperties kissProps = new KissMetricsProperties().put("item", "latte");
+        sampleToadProvider.setProps(kissProps);
+
+        toadELHelper.populateToad(annotation);
+
+        final ToadUser toadUser = sampleToadProvider.getToad().getUsers().get(userId);
+        Assert.assertNotNull(toadUser);
+        Assert.assertTrue(toadUser.getAliases().contains(to));
+        Assert.assertTrue(toadUser.getPropsMap().containsKey(userId));
+        Assert.assertEquals(kissProps.getQueryString(), toadUser.getPropsMap().get(userId).getQueryString());
+
+        final ToadUser toadUser2 = sampleToadProvider.getToad().getUsers().get(userId2);
+        Assert.assertNotNull(toadUser2);
+
+        final KissMetricsProperties eventProps = toadUser.getPropsMap().get(event);
+        Assert.assertNotNull(eventProps);
+        Assert.assertEquals(kissProps.getQueryString(), eventProps.getQueryString());
+
+        final KissMetricsProperties eventProps2 = toadUser2.getPropsMap().get(event2);
+        Assert.assertNotNull(eventProps2);
+        Assert.assertEquals(kissProps.getQueryString(), eventProps2.getQueryString());
+    }
+
+    @Test
     /*
      * Note: this is just to test the distinction between el and non-el values, the JeraffELResolverTest does tests
      * to resolve different types of objects
