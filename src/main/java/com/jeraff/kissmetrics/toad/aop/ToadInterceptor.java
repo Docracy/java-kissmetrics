@@ -34,8 +34,4 @@ public class ToadInterceptor implements MethodInterceptor {
             return invocation.proceed();
         }
     }
-
-    public void setToadProvider(ToadProvider toadProvider) {
-        this.toadProvider = toadProvider;
-    }
 }
