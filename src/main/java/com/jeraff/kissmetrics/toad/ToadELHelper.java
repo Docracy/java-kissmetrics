@@ -53,9 +53,6 @@ public class ToadELHelper {
     }
 
     public Object resolve(String expression) {
-        /* IMPORTANT: el support is scoped to "provided" in the library pom.xml so it's up to to you to modify your
-         * pom.xml (if you're using maven) for runtime support or to make sure that the expression factory library is in
-         * your classpath */
         if (expression.startsWith(EL_PREFIX)) {
             if (elResolver == null) {
                 try {
