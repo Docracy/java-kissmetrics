@@ -13,6 +13,7 @@ public class ToadInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
+        Object result = null;
         try {
             toadProvider = (ToadProvider) invocation.getThis();
             toad = toadProvider.getToad();
@@ -26,11 +27,16 @@ public class ToadInterceptor implements MethodInterceptor {
                 return invocation.proceed();
             }
 
-            final Object result = invocation.proceed();
+            result = invocation.proceed();
             elHelper.populateToad(kissAnnotation);
             toad.run();
             return result;
         } catch(Exception e) {
+            // make sure we don't call things twice :-)
+            if (result != null) {
+                return result;
+            }
+
             return invocation.proceed();
         }
     }
