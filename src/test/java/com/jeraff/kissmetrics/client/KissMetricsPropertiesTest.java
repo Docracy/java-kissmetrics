@@ -13,4 +13,10 @@ public class KissMetricsPropertiesTest {
         Assert.assertEquals(-1, props.getQueryString().indexOf("event1"));
         Assert.assertTrue(props.getQueryString().indexOf("event2") >= 0);
     }
+
+    @Test
+    public void testPutNulls() throws Exception {
+        KissMetricsProperties props = new KissMetricsProperties();
+        props.put("test", null);
+    }
 }

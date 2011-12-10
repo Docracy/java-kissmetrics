@@ -6,8 +6,10 @@ public class KissMetricsProperties {
     private StringBuilder sb = new StringBuilder();
 
     private void _put(String key, Object value) {
-        sb.append(URLUTF8Encoder.encode(key)).append("=").append(URLUTF8Encoder.encode(value.toString()))
-          .append("&");
+        if (value != null) {
+            sb.append(URLUTF8Encoder.encode(key)).append("=").append(URLUTF8Encoder.encode(value.toString()))
+              .append("&");
+        }
     }
 
     public KissMetricsProperties put(String key, String value) {
